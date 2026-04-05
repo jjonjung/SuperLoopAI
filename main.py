@@ -252,5 +252,64 @@ def workflow(file, target):
     ))
 
 
+# ─── scaffold ────────────────────────────────────────────────────────────────
+@cli.command()
+@click.argument("scaffold_type",
+                metavar="TYPE",
+                type=click.Choice(["character", "skill", "component", "manager", "gamemode"],
+                                  case_sensitive=False))
+@click.argument("class_name", metavar="NAME")
+@click.option("--hint", "-h", default="", help="추가 요구사항 (예: '발사체 3개 생성, 재장전 쿨타임 포함')")
+def scaffold(scaffold_type, class_name, hint):
+    """프로젝트 패턴 기반 UE5 C++ 보일러플레이트 생성.
+
+    \b
+    TYPE: character | skill | component | manager | gamemode
+    NAME: 생성할 클래스명 (PascalCase, A/U 접두사 제외)
+
+    \b
+    Examples:
+      gameaitool scaffold character SpiderMan2
+      gameaitool scaffold skill IceBlast --hint "발사체 3발, 쿨타임 5초"
+      gameaitool scaffold component HealthRegen
+      gameaitool --project ../MyGame scaffold character Warrior
+    """
+    from agents.scaffold_agent import scaffold as do_scaffold
+    do_scaffold(scaffold_type, class_name, hint)
+
+
+# ─── refactor ────────────────────────────────────────────────────────────────
+@cli.command()
+@click.argument("old_name")
+@click.argument("new_name")
+@click.option("--apply", is_flag=True, default=False,
+              help="분석 후 실제 파일에 변경 적용 (기본: 분석만)")
+def refactor(old_name, new_name, apply):
+    """심볼 리네임 전체 참조 분석 + AI 리팩터링 계획 생성.
+
+    \b
+    Examples:
+      gameaitool refactor BattleManager BattleCoordinator
+      gameaitool refactor OnCharacterKilled OnCharacterDied --apply
+      gameaitool --project ../MyGame refactor OldClass NewClass
+    """
+    from agents.refactor_agent import analyze_refactor
+    analyze_refactor(old_name, new_name, apply)
+
+
+# ─── health ───────────────────────────────────────────────────────────────────
+@cli.command()
+def health():
+    """프로젝트 종합 건강도 진단 (코드 + 에셋 + 성능 + 아키텍처).
+
+    \b
+    Examples:
+      gameaitool health
+      gameaitool --project ../MyGame health
+    """
+    from agents.health_agent import run_health_check
+    run_health_check()
+
+
 if __name__ == "__main__":
     cli()
